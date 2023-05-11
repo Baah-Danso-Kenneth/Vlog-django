@@ -4,8 +4,10 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .forms import EmailPostForm, CommentsForm
 from .models import Post, Comment
 from django.views.decorators.http import require_POST
+from django.db.models import Count
 # noinspection PyUnresolvedReferences
 from taggit.models import Tag
+
 def post_list(request,tag_slug=None):
     post_list= Post.objects.all()
     tag=None
@@ -29,7 +31,11 @@ def post_detail(request,year,month,day,post):
     post=get_object_or_404(Post,slug=post,publish__year=year,publish__month=month,publish__day=day)
     comments=post.comments.filter(active=True)
     form=CommentsForm()
-    return render(request,'blog/post/post_detail.html',{"post":post,"comments":comments,"form":form})
+
+    post_tags_ids=post.tags.values_list('id',flat=True)
+    similar_posts=Post.objects.filter(tags__in=post_tags_ids).exclude(id=post.id)
+    similar_posts= similar_posts.annotate(same_tags=Count('tags')).order_by('-same_tags','-publish')[:4]
+    return render(request,'blog/post/post_detail.html',{"post":post,"comments":comments,"form":form,"similar_post":similar_posts})
 
 def post_share(request,post_id):
     post=get_object_or_404(Post,id=post_id)
