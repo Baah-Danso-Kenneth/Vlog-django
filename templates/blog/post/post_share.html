@@ -4,13 +4,14 @@
 {%block content%}
   {%if sent%}
    <h1>E-mail is sent successfully </h1>
-    <p>"{{posts.title}}" was successfully sent to <a>{{form.cleaned_data.to}}</a></p>
+    <p>"{{post.title}}" was successfully sent to <a>{{form.cleaned_data.to}}</a></p>
     {%else%}
-      <h1>Share "{{posts.title}}"</h1>
+      <h1>Share "{{post.title}}"</h1>
        <form method="post">
            {{form.as_p}}
            {%csrf_token%}
            <input type="submit" value="Send email">
        </form>
   {%endif%}
+
 {%endblock%}creation of a form in a blog to allow user send email and comments
