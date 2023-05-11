@@ -2,7 +2,8 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.urls import reverse
-
+# noinspection PyUnresolvedReferences
+from taggit.managers import TaggableManager
 
 class Post(models.Model):
     class PublishedPost(models.Manager):
@@ -16,6 +17,7 @@ class Post(models.Model):
     title = models.CharField(max_length=30)
     slug = models.SlugField(max_length=250, unique_for_date='publish')
     body = models.TextField()
+    tags=TaggableManager()
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.DRAFT)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='blog_post')
     publish = models.DateTimeField(default=timezone.now)
