@@ -1,5 +1,6 @@
 
 <!DOCTYPE html>
+{%load vlog_tags%}
 {% load static %}
 <html>
 <head>
@@ -13,7 +14,29 @@
   </div>
   <div id="sidebar">
     <h2>My blog</h2>
-    <p>This is my blog.</p>
+    <p>This is my blog.
+       There are {%total_post%} posts so far
+    </p>
+    <h3>Latest posts</h3>
+        {%show_latest_posts as current_post%}
+        <ul>
+          {%for post in current_post%}
+            <li>
+              <a href="{{post.get_absolute_path}}">{{post.title}}</a>
+            </li>
+          {%endfor%}
+        </ul>
+
+    <h3>Most commented post</h3>
+    {%get_most_commented_post as dope_post%}
+      <ul>
+         {%for post in dope_post%}
+        <li>
+           <a href="{{post.get_absolute_path}}">{{post.title}}</a>
+        </li>
+       {%endfor%}
+      </ul>
+
   </div>
 </body>
 </html>
