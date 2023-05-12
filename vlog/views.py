@@ -1,7 +1,8 @@
 from django.core.mail import send_mail
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from .forms import EmailPostForm, CommentsForm
+from .forms import EmailPostForm, CommentsForm, SearchForm
+from django.contrib.postgres.search import SearchVector
 from .models import Post, Comment
 from django.views.decorators.http import require_POST
 from django.db.models import Count
@@ -58,8 +59,6 @@ def post_share(request,post_id):
     return render(request,'blog/post/post_share.html',{'post':post,'sent':sent,"form":form})
 
 
-
-
 @require_POST
 def post_comment(request,post_id):
     post = get_object_or_404(Post,id=post_id)
@@ -72,3 +71,16 @@ def post_comment(request,post_id):
         print(comment.post)
 
     return render(request,'blog/post/comment.html',{'post':post,'comment':comment,'form':form})
+
+
+def post_search(request):
+    form = SearchForm()
+    query=None
+    results=[]
+
+    if 'query' in request.GET:
+        form = SearchForm(request.GET)
+        if form.is_valid():
+            query=form.cleaned_data['query']
+            results=Post.objects.annotate(search=SearchVector('title','body'),).filter(search=query)
+    return render(request,'blog/post/post_search.html',{"form":form,'query':query,"results":results})
